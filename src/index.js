@@ -1,14 +1,21 @@
-const exampleService = require('./services/exampleService');
-const config = require('./config');
+const apiService = require('./services/apiService');
+const config = require('./config/config');
+
+const setApiKeyId = (id) => {
+  config.setApiKeyId(id);
+};
+
+const setSecret = (secret) => {
+  config.setSecret(secret);
+};
 
 const setEnvironment = (env) => {
-  if (env !== 'production' && env !== 'sandbox') {
-    throw new Error('Environment must be either "production" or "sandbox"');
-  }
-  config.environment = env;
+  config.setEnvironment(env);
 };
 
 module.exports = {
-  exampleService,
+  apiService,
+  setApiKeyId,
+  setSecret,
   setEnvironment,
 };
