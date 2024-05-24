@@ -1,55 +1,80 @@
-const axios = require('axios');
-const crypto = require('crypto');
+const https = require('https');
+const { URL } = require('url');
+const RequestInfo = require('./sign');
 const config = require('../config/config');
 
-const createSignature = (method, uri, queryString, body) => {
-  const timestamp = Date.now().toString();
-  const toSign = `${method}\n${uri}\n${queryString}\n${timestamp}\n${body}`;
-  
-  if (!config.secret) {
-    throw new Error('Secret key is not defined in the configuration.');
-  }
-  
-  const hmac = crypto.createHmac('sha256', config.secret);
-  hmac.update(toSign);
-  const signature = hmac.digest('base64');
-  return {
-    signature,
-    timestamp
-  };
-};
+const headersToSign = ['user-agent', 'accept'];
 
-const request = axios.create({
-  baseURL: config.baseUrl,
-  timeout: config.timeout,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const request = (method, path, params, data) => {
+  return new Promise((resolve, reject) => {
+    const url = new URL(`${config.baseUrl}${path}`);
+    url.search = new URLSearchParams(params).toString();
 
-request.interceptors.request.use(reqConfig => {
-  const { method, url, params, data } = reqConfig;
-  const uri = url.split('?')[0];
-  const queryString = new URLSearchParams(params).toString();
-  const body = data ? JSON.stringify(data) : '';
+    const body = data ? JSON.stringify(data) : '';
+    const date = Date.now().toString();
 
-  const { signature, timestamp } = createSignature(method.toUpperCase(), uri, queryString, body);
+    const headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      'Accept': 'application/json'
+    };
 
-  reqConfig.headers['Authorization'] = `HMAC-SHA256 id="${config.apiKeyId}", ts="${timestamp}", sign="${signature}"`;
-  
-  return reqConfig;
-}, error => {
-  return Promise.reject(error);
-});
+    const requestInfo = new RequestInfo(url.href, url.hostname, config.apiKeyId, config.secret, method, headers, body, null, headersToSign);
+    const authorization = requestInfo.sign(date);
 
-request.interceptors.response.use(
-  response => response.data,
-  error => {
-    if (error.response) {
-      return Promise.reject(error.response.data);
+    headers['Authorization'] = authorization;
+    headers['x-date'] = date;
+    headers['appkey'] = config.apiKeyId;
+
+    const options = {
+      method,
+      hostname: url.hostname,
+      port: url.port,
+      path: `${url.pathname}${url.search}`,
+      headers,
+      rejectUnauthorized: false // Ignore self-signed certificate errors
+    };
+
+    // Log the entire request structure before sending
+    console.log('Request structure:', {
+      method,
+      url: url.href,
+      headers,
+      body: body || null
+    });
+
+    const req = https.request(options, (res) => {
+      let responseData = '';
+
+      res.on('data', (chunk) => {
+        responseData += chunk;
+      });
+
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(JSON.parse(responseData));
+        } else {
+          reject({
+            message: `Request failed with status code ${res.statusCode}`,
+            response: {
+              status: res.statusCode,
+              data: responseData
+            }
+          });
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    if (body) {
+      req.write(body);
     }
-    return Promise.reject(error);
-  }
-);
+
+    req.end();
+  });
+};
 
 module.exports = request;

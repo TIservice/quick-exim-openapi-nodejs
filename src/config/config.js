@@ -7,7 +7,7 @@ const config = {
   apiKeyId: '',
   secret: '',
   environment: 'sandbox', // Default environment
-  timeout: 5000,
+  timeout: 30000,
   get baseUrl() {
     return ENVIRONMENTS[this.environment];
   },

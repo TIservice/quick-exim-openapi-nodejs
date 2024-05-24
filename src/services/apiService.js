@@ -1,18 +1,18 @@
 const request = require('../utils/request');
 
 const apiService = {
-  async getExampleData(params) {
+  async getData(params, apiPath) {
     try {
-      const response = await request.get('/api/data', { params });
+      const response = await request('GET', apiPath, params);
       return response;
     } catch (error) {
       throw new Error(`Failed to fetch data: ${error.message}`);
     }
   },
 
-  async createExampleData(data) {
+  async postData(data, apiPath) {
     try {
-      const response = await request.post('/api/data', data);
+      const response = await request('POST', apiPath, {}, data);
       return response;
     } catch (error) {
       throw new Error(`Failed to create data: ${error.message}`);
@@ -21,3 +21,4 @@ const apiService = {
 };
 
 module.exports = apiService;
+
