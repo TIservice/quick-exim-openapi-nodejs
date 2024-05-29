@@ -17,7 +17,8 @@ class RequestInfo {
   sign(date) {
     const url = new URL(this.url);
     const strSign = `x-data: ${this.signMethod()}\n${this.signPath(url)}\n${this.signQueryParams(url)}\n${date}\n${this.signHeadersString(date)}\n${this.signBody()}`;
-    console.log(strSign); // For debugging
+    // For debugging
+    // console.log(strSign); 
     const hmacStr = Tool.HmacSHA1Encrypt(strSign, this.secret);
     const signature = Tool.base64Encode(hmacStr);
     return `id=${this.apiKey},algorithm=hmac-sha1,headers=${this.getSignHeadersString()},signature=${signature}`;

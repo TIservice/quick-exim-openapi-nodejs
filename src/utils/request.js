@@ -36,12 +36,12 @@ const request = (method, path, params, data) => {
     };
 
     // Log the entire request structure before sending
-    console.log('Request structure:', {
-      method,
-      url: url.href,
-      headers,
-      body: body || null
-    });
+    // console.log('Request structure:', {
+    //   method,
+    //   url: url.href,
+    //   headers,
+    //   body: body
+    // });
 
     const req = https.request(options, (res) => {
       let responseData = '';

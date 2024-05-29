@@ -1,7 +1,7 @@
 {
   "name": "quick-exim-openapi",
   "version": "1.0.0",
-  "description": "A Node.js SDK for interacting with the OpenAPI platform",
+  "description": "This SDK allows you to interact with the Quick Exim OpenAPI platform using Node.js.",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
