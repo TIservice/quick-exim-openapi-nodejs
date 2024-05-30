@@ -51,7 +51,7 @@ setSecret('your Secret');
   }
 
   try {
-    const response = await apiService.createExampleData({ key: "value" }, '/v1/api/data');
+    const response = await apiService.postData({ key: "value" }, '/v1/api/data');
     console.log(response);
   } catch (error) {
     console.error('Error creating data:', error.message);
@@ -88,7 +88,7 @@ Fetches data from the specified API endpoint.
 
 Returns a promise that resolves with the data from the API.
 
-### apiService.createExampleData(data, path)
+### apiService.postData(data, path)
 
 Sends a POST request to create data at the specified API endpoint.
 
@@ -120,7 +120,7 @@ setSecret('your Secret');
   }
 
   try {
-    const response = await apiService.createExampleData({ key: "value" }, '/v1/api/data');
+    const response = await apiService.postData({ key: "value" }, '/v1/api/data');
     console.log('Data created successfully:', response);
   } catch (error) {
     console.error('Error creating data:', error.message);
