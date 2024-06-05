@@ -128,10 +128,6 @@ setSecret('your Secret');
 })();
 ```
 
-## License
-
-This SDK is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
-
 ## Contributing
 
 If you want to contribute to this project, please follow these steps:
